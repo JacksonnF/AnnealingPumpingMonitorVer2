@@ -2,6 +2,9 @@
 
 This repo contains the source code for the Annealing Station Logger located at TRIUMF.
 
+
+If you have any questions or problems with the code please email: jacksonfraser55@gmail.com
+
 ## General Overview
 
 The datalogger setup is quite simple. The data that is fed to the raspberry pi by the arduino is analyzed in the readDatacpp function located in the src directory. This c++ file records all of the measurements, and is the centerpeice of the logger. The data can be seen from the web server hosted on the raspberry pi in plot and text form. readDatacpp will continuously run in the background and the current reading is updated every 4 seconds on the homepage using simple jQuery AJAX get requests. 
@@ -25,27 +28,19 @@ screen -r pyscript   Attaches to the checkUptime.py screen session where you can
 To detach from those sessions use CTRL-a d.
 
 ```
-If the "reboot datalogger" or "start annealing session" buttons are failing to restart readDatacpp, first check if there is a screen session present with screen -ls. If none are present cd to cd /home/tigress/site/www/bin and try running ./readDatacpp. If it continues to fail run ./readDatacpp again. Sometimes the UUGear framework can be buggy, so if you continue to run ./readDatacpp the program will start eventually once the daemon is restarted. 
+If the "reboot datalogger" or "start annealing session" buttons are failing to restart readDatacpp, first check if there is a screen session present with screen -ls. If none are present cd to cd /home/tigress/site/www/bin and try running ./readDatacpp. If it continues to fail run ./readDatacpp again. Sometimes the UUGear framework can be buggy, so you either need to wait for it to start working, or you can unplug and replug in the arduino/pi connection (this usually works).
 
 Once readData is working again use CTRL-C to stop it and try the "Reboot Datalogger" button once again so that the proper screen sessions are initialized.
 
 ## Using the Site
 
-![alt text](https://github.com/JacksonnF/TIGRESSAnnealingMonitor/blob/JacksonnF-Readme-edit/homepage.png?raw=true)
-
-Above is a screenshot of the datalogger homepage. The layout is simple. The updated data will refresh on the page every 4 seconds, and the logger status (either "logger running" or "logger down" will display on the right side 4 seconds after page load).
-
-The functionality of the site comes from the buttons which are discussed below.
+The functionality of the site comes from the buttons which are discussed below. Many of these buttons are contained withing the settings menu.
 
 ### Buttons
 
-![alt text](https://github.com/JacksonnF/TIGRESSAnnealingMonitor/blob/JacksonnF-Readme-edit/buttons.png?raw=true)
+#### Temperature and Pressure Plots / Download/Plot Legacy Files
 
-The above image shows the buttons present on the logger site. I will go through each of their functionality in detail below.
-
-#### Temperature and Pressure Plots / Download Datalog Files
-
-Both of these buttons are fairly self explanatory. They redirect to pages where the plots of the data can be viewed, and csv datalog files can be downloaded.
+Both of these buttons are fairly self explanatory. They redirect to pages where the plots of the data can be viewed, and csv datalog files can be downloaded. Plot legacy files allows you to plot older annealing sessions.
 
 #### New Annealing Session
 
@@ -73,6 +68,10 @@ This button allows the user to delete and backup the datalog.csv file which is t
 
 The user is given the option to backup the datalog.csv file or just delete it with no backup. This choice is then followed by two confirmation messages to ensure that the file is not deleted unintentionally. 
 
+#### Edit Sample Rate
+
+Allows you to control how often data is saved to the datalog.csv file.
+
 ## Troubleshooting
 
 ### Find the Source of the Error
@@ -90,7 +89,7 @@ Even if your directory setup is slightly different, the ```/logs``` directory ca
 
 If readData.cpp does not start running after several tries using the reboot button, you can SSH into the pi to start debugging.
 
-**Insert tutorial on how to SSH from wiki here**
+
 
 Once you are in first try running:
 ```
@@ -108,7 +107,7 @@ Once in the bin run readData with the command:
 ```
 ./readDatacpp
 ```
-If the output message says something about "UUGEar" continue to run readData with the above command. After a few attempts, the queue should reset and readData should begin to run again. If this is the case, you can go back to the web page and reboot both scripts using the **Reboot Data Logger** button.
+If the output message says something about "UUGEar" not connecting then the fastest fix is probably to unplug and replug in the arduino to the raspberry pi. ALSO make sure that the correct UUGear ID is being used in readData.cpp. You determine the id for each arduino by using ./lsuu which in located in /www/bin. 
 
 
 
@@ -121,7 +120,6 @@ and readData or checkUptime.py DO appear on the list of programs run the followi
 screen -ls
 ```
 
-**Insert screenshot of normal output**
 
 Now depending on which sessions are up you can attach to the session to view the output / error messages to help you debug with the command:
 ```
@@ -147,7 +145,6 @@ Install gawk?
 
 Install screen.
 
-Give www-data ALL:(ALL) NOPASSWD in sudoers by editing with visudo command.
 
 File paths are discussed somewhat below, but www-data must have permission to write to JSON files.
 
@@ -189,7 +186,7 @@ The root of the git hub repo correspongs to
 /home/tigress/site
 ```
 
-The root of the sites files (ie. the directory taht nginx uses to locate your index.php page etc) is:
+The root of the sites files (ie. the directory that nginx uses to locate your index.php page etc) is:
 
 ```
 /home/tigress/site/www
@@ -199,7 +196,7 @@ This contains all of the php/html/css/javascript for the project.
 
 All php scripts are within the ``` /action ``` directory.
 
-``` /datalogs ``` is a relative link that points to the directory where you want to store your csv files containing all of the recorded and backed up data.
+``` /datalogs ``` is a relative link that points to the directory where you want to store your csv files containing all of the recorded and backed up data. Under the current setup this is points to ```/home/tigress/mnt/EXFAT/datalogs/```
 
 The following files will also need to be added as they contain parameters used for calculations and such. All following subdirectories need to give www-data permission to read/write to files.
 
@@ -222,8 +219,6 @@ tempConst.json
 
 
 Once you make these new files, make sure you add values to them by submitting calibration forms of the site. If not readDatacpp will fail at runtime because json from the files will fail to parse.
-
-
 
 Other Tips
 
