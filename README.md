@@ -9,6 +9,8 @@ If you have any questions or problems with the code please email: jacksonfraser5
 
 The datalogger setup is quite simple. The data that is fed to the raspberry pi by the arduino is analyzed in the readDatacpp function located in the src directory. This c++ file records all of the measurements, and is the centerpeice of the logger. The data can be seen from the web server hosted on the raspberry pi in plot and text form. readDatacpp will continuously run in the background and the current reading is updated every 4 seconds on the homepage using simple jQuery AJAX get requests. 
 
+The buildcpp.sh file is used to recomple readData.cpp after changes have been made.
+
 There was some issue with the logger timing out, so a solution was implemented in the form of checkUptime.py which is located in the ``` www/ ``` directory. This is a simple python script which checks that measurements are still being recorded every 5 minutes. If there are no new measurments then the python script will attempt to restart the logger.
 
 The functionality of the buttons is all done using jQuery and php, with the php scripts being located in the ``` action/ ``` directory. The specific directory structure can be seen in the below directory section. 
